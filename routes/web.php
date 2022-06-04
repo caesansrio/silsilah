@@ -11,16 +11,15 @@
 |
 */
 
-Route::get('/', 'UsersController@search');
+
 
 Auth::routes();
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('/', 'UsersController@search');
     Route::get('password/change', 'Auth\ChangePasswordController@show')->name('password_change');
     Route::post('password/change', 'Auth\ChangePasswordController@update')->name('password_update');
-});
-
-Route::get('home', 'HomeController@index')->name('home');
+    Route::get('home', 'HomeController@index')->name('home');
 Route::get('profile', 'HomeController@index')->name('profile');
 Route::post('family-actions/{user}/set-father', 'FamilyActionsController@setFather')->name('family-actions.set-father');
 Route::post('family-actions/{user}/set-mother', 'FamilyActionsController@setMother')->name('family-actions.set-mother');
@@ -49,6 +48,7 @@ Route::get('birthdays', 'BirthdayController@index')->name('birthdays.index');
 Route::get('couples/{couple}', ['as' => 'couples.show', 'uses' => 'CouplesController@show']);
 Route::get('couples/{couple}/edit', ['as' => 'couples.edit', 'uses' => 'CouplesController@edit']);
 Route::patch('couples/{couple}', ['as' => 'couples.update', 'uses' => 'CouplesController@update']);
+});
 
 /**
  * Admin only routes
@@ -57,6 +57,8 @@ Route::group(['middleware' => 'admin'], function () {
     /**
      * Backup Restore Database Routes
      */
+    Route::get('register/userFamily', ['as' => 'register.userFamily', 'uses' => 'UsersController@registerUserFamily']);
+    Route::post('register/createUserFamily', ['as' => 'create.userFamily', 'uses' => 'UsersController@createUserFamily']);
     Route::post('backups/upload', ['as' => 'backups.upload', 'uses' => 'BackupsController@upload']);
     Route::post('backups/{fileName}/restore', ['as' => 'backups.restore', 'uses' => 'BackupsController@restore']);
     Route::get('backups/{fileName}/dl', ['as' => 'backups.download', 'uses' => 'BackupsController@download']);

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Ramsey\Uuid\Uuid;
 use Storage;
+use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
@@ -218,6 +219,57 @@ class UsersController extends Controller
         $user->save();
 
         return back();
+    }
+
+    public function registerUserFamily()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'nickname' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'gender_id' => 'required|numeric|in:1,2',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+    }
+
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array  $data
+     * @return User
+     */
+    public function createUserFamily(Request $request)
+    {
+        $request->validate([
+            'nickname' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'gender_id' => 'required|numeric|in:1,2',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+        $user = User::create([
+            'id' => Uuid::uuid4()->toString(),
+            'nickname' => $request->input('nickname'),
+            'name' => $request->input('name'),
+            'gender_id' => $request->input('gender_id'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+        ]);
+        $user->manager_id = $user->id;
+        $user->save();
+
+        return $this->show($user);
     }
 
     /**
